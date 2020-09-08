@@ -8,31 +8,37 @@ DATABASE = SqliteDatabase('journal.db')
 class Journal(Model):
     title = CharField()
     date = DateField(default=datetime.date.today)
-    timespent = IntegerField()
+    timeSpent = IntegerField()
     learned = TextField()
     resources = TextField()
 
     class Meta:
         database = DATABASE
-        order_by = ('-date',)
 
     @classmethod
-    def create_entry(cls, title, timespent, learned, resources):
+    def create_entry(cls, title, date, timeSpent, learned, resources):
+        """
+        Add journal entry to database
+        """
         try:
             with DATABASE.transaction():
                 cls.create(
-                    title = title,
-                    timespent = timespent,
-                    learned = learned,
-                    resources = resources
+                    title=title,
+                    date=date,
+                    timeSpent=timeSpent,
+                    learned=learned,
+                    resources=resources
                 )
         except IntegrityError:
             raise ValueError("Entry already exists")
 
 
-
-
 def initialize():
+    """
+    initialise the database model
+    current functionality is to delete all DB tables and recreate
+    at each new run of application.  For "real" use, would not do this
+    """
     DATABASE.connect()
     DATABASE.drop_tables([Journal], safe=True)
     DATABASE.create_tables([Journal], safe=True)
